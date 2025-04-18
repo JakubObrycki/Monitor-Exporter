@@ -2,10 +2,16 @@ package main
 
 import (
 	"cpu/internal/monitor"
+	"fmt"
 )
 
 func main() {
-	monitor.MonitorCpu()
+
+	err := monitor.MonitorCpu()
+	if err != nil {
+		fmt.Println("Erro", err)
+	}
 	monitor.MonitorMem()
 	monitor.LoadAverage()
+	monitor.TempCpu()
 }
