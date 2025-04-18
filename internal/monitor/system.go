@@ -25,6 +25,9 @@ func MonitorCpu() error { // poprawic jeszcze tutaj i mem rowniez zgodnie z bibl
 	}
 
 	fmt.Printf("Total CPU:  %.2f%%\n", usage[0])
+	if usage[0] > 80.0 {
+		fmt.Println("--Too high CPU!--")
+	}
 
 	return nil
 }
@@ -40,6 +43,9 @@ func MonitorMem() error {
 	roundtotalmemory := math.Round(totalMemory*100) / 100
 
 	fmt.Printf("Total Memory: %.2f GB\n", roundtotalmemory)
+	if roundtotalmemory > 80.0 {
+		fmt.Println("--Too high Memory!--")
+	}
 
 	return nil
 }
@@ -66,9 +72,9 @@ func TempCpu() error { // funckcja nie dziala ?
 		return fmt.Errorf("error with temperature sensors %w", err)
 	}
 
-	for _, v := range temp {
-		fmt.Printf("CPU temperature: %v, \nTitel of sensor: %v ", v.Temperature, v.SensorKey)
-	}
+	//for _, v := range temp {
+	fmt.Printf("CPU temperature: %v, \nTitel of sensor: %v ", temp.Temperature, temp.SensorKey)
+	//}
 
 	return nil
 }
