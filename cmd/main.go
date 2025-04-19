@@ -7,10 +7,12 @@ import (
 
 func main() {
 
-	err := monitor.MonitorCpu()
+	data, err := monitor.MonitorCpu()
 	if err != nil {
-		fmt.Println("Erro", err)
+		fmt.Println("Error", err)
 	}
+	fmt.Println("Total CPU:", data.CPU, "%")
+
 	monitor.MonitorMem()
 	monitor.LoadAverage()
 	monitor.TempCpu()

@@ -5,31 +5,42 @@ import (
 	"math"
 	"time"
 
-	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v4/sensors"
 )
 
 // dodac jeszcze inne ciekawe funkcji ktore moga byc atrakcyjne w typ wypadku
 type DataStat struct { // dodanie tego zeby wyprowadzilo metryki z dockera prometheusa i dodalo do grafany
-	CPU    float64 `json:"CPU"`
-	Memory float64 `json:"Memory"`
+	CPU float64 `json:"cpu"`
+	//Memory      float64 `json:"memory"`
+	//Load1       float64 `json:"load1"`
+	//Load5       float64 `json:"load5"`
+	//Load15      float64 `json:"load15"`
+	//Temperature float64 `json:"temperature"` // możesz dodać więcej jeśli masz wiele sensorów
+	//Uptime      string  `json:"uptime"`
+	//Timestamp   string  `json:"timestamp"`
 }
 
-func MonitorCpu() error { // poprawic jeszcze tutaj i mem rowniez zgodnie z biblioteka // dodac alerting, ewentualnie przekminic to w grafanie zeby to grafana wysylala
+func MonitorCpu() (*DataStat, error) {
 
 	usage, err := cpu.Percent(time.Second, false)
 	if err != nil {
-		return fmt.Errorf("error with CPU monitoring %w", err)
+		return nil, err //fmt.Errorf("error with CPU monitoring %w", err)
 	}
 
-	fmt.Printf("Total CPU:  %.2f%%\n", usage[0])
-	if usage[0] > 80.0 {
-		fmt.Println("--Too high CPU!--")
+	roundvalue := math.Round(usage[0]*100) / 100
+
+	data := &DataStat{
+		CPU: roundvalue,
 	}
 
-	return nil
+	if data.CPU > 80.0 {
+		fmt.Println("--Too high CPU!--") // dodac to do webhooka
+	}
+
+	return data, nil
 }
 
 func MonitorMem() error {
@@ -44,7 +55,7 @@ func MonitorMem() error {
 
 	fmt.Printf("Total Memory: %.2f GB\n", roundtotalmemory)
 	if roundtotalmemory > 80.0 {
-		fmt.Println("--Too high Memory!--")
+		fmt.Println("--Too high Memory!--") // dodac to do webhooka, trzeba napisac dodatkowa funkcje do webhookow
 	}
 
 	return nil
@@ -67,14 +78,14 @@ func LoadAverage() error {
 
 func TempCpu() error { // funckcja nie dziala ?
 
-	temp, err := host.SensorsTemperatures()
+	temp, err := sensors.SensorsTemperatures()
 	if err != nil {
 		return fmt.Errorf("error with temperature sensors %w", err)
 	}
 
-	//for _, v := range temp {
-	fmt.Printf("CPU temperature: %v, \nTitel of sensor: %v ", temp.Temperature, temp.SensorKey)
-	//}
+	for _, v := range temp {
+		fmt.Printf("CPU temperature: %v, \nTitel of sensor: %v ", v.Temperature, v.SensorKey)
+	}
 
 	return nil
 }
