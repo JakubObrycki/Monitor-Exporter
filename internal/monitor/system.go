@@ -11,10 +11,16 @@ import (
 	"github.com/shirou/gopsutil/v4/sensors"
 )
 
+// !! wszystkie fmt.Println do wywalnie na koncu
+
 // dodac jeszcze inne ciekawe funkcji ktore moga byc atrakcyjne w typ wypadku
 type DataStat struct { // dodanie tego zeby wyprowadzilo metryki z dockera prometheusa i dodalo do grafany
-	CPU float64 `json:"cpu"`
-	//Memory      float64 `json:"memory"`
+	CPU         float64 `json:"cpu"`
+	Memory      float64 `json:"memory"`
+	Available   float64 `json:"available"`
+	Used        float64 `json: used`
+	Free        float64 `json:"free"`
+	UsedPercent float64 `json:"usedpercent"`
 	//Load1       float64 `json:"load1"`
 	//Load5       float64 `json:"load5"`
 	//Load15      float64 `json:"load15"`
@@ -23,11 +29,12 @@ type DataStat struct { // dodanie tego zeby wyprowadzilo metryki z dockera prome
 	//Timestamp   string  `json:"timestamp"`
 }
 
+// CPU
 func MonitorCpu() (*DataStat, error) {
 
 	usage, err := cpu.Percent(time.Second, false)
 	if err != nil {
-		return nil, err //fmt.Errorf("error with CPU monitoring %w", err)
+		return nil, err
 	}
 
 	roundvalue := math.Round(usage[0]*100) / 100
@@ -43,22 +50,38 @@ func MonitorCpu() (*DataStat, error) {
 	return data, nil
 }
 
-func MonitorMem() error {
+// Memory
+func MonitorMem() (*DataStat, error) {
 
 	v, err := mem.VirtualMemory()
 	if err != nil {
-		return fmt.Errorf("error with memory monitoring %w", err)
+		return nil, err
 	}
 
-	totalMemory := float64(v.Total) / (1024 * 1024 * 1024)
-	roundtotalmemory := math.Round(totalMemory*100) / 100
+	used := float64(v.Used)           // w sumie to tez bedzie do wywalenie bo do prometheusa trzeba dddawac w bajtach
+	usePerc := float64(v.UsedPercent) // tu bedzie alert, podbnie tez dla grafany (pow.80%)
+	freeMemory := float64(v.Free)     // skonczylem tu free memorys < 1GB
+	avaMemory := float64(v.Available) // tu bedzie alert ale najwyzej to dla grafany sie doda
+	totalMemory := float64(v.Total)
 
-	fmt.Printf("Total Memory: %.2f GB\n", roundtotalmemory)
-	if roundtotalmemory > 80.0 {
+	data := &DataStat{
+		Available:   avaMemory,
+		Used:        used,
+		Memory:      totalMemory,
+		UsedPercent: usePerc,
+		Free:        freeMemory,
+	}
+
+	fmt.Println("Free memory: ", freeMemory)
+	fmt.Println("Used: ", used, "GB")
+	fmt.Println("Use percent: ", usePerc, "%")
+	fmt.Println("Available memory:", avaMemory, "GB")
+	fmt.Printf("Total Memory: %.2f GB\n", data.Memory) // oproc total memory, mozna dodac cos jeszcze
+	if data.Memory > 80.0 {                            // alert musi byc ustawiony do usedpercent !
 		fmt.Println("--Too high Memory!--") // dodac to do webhooka, trzeba napisac dodatkowa funkcje do webhookow
 	}
 
-	return nil
+	return data, nil
 }
 
 // Load Average obciazenie systemu
