@@ -2,9 +2,9 @@ package monitor
 
 import (
 	"fmt"
-	"math"
 	"time"
 
+	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/v3/cpu"
@@ -16,14 +16,19 @@ import (
 // dodac jeszcze inne ciekawe funkcji ktore moga byc atrakcyjne w typ wypadku
 type DataStat struct { // dodanie tego zeby wyprowadzilo metryki z dockera prometheusa i dodalo do grafany
 	CPU         float64 `json:"cpu"`
-	Memory      float64 `json:"memory"`
+	Memory      float64 `json:"memory"` //tutaj mozna zostawic to jako unit64
 	Available   float64 `json:"available"`
-	Used        float64 `json: used`
+	Used        float64 `json:"used"`
 	Free        float64 `json:"free"`
 	UsedPercent float64 `json:"usedpercent"`
-	//Load1       float64 `json:"load1"`
-	//Load5       float64 `json:"load5"`
-	//Load15      float64 `json:"load15"`
+	Load1       float64 `json:"load1"`
+	Load5       float64 `json:"load5"`
+	Load15      float64 `json:"load15"`
+	CpuTemp     float64 `json:"cputemp"`
+	Days        int     `json:"days"`
+	Hours       int     `json:"hours"`
+	Minutes     int     `json:"minutes"`
+
 	//Temperature float64 `json:"temperature"` // możesz dodać więcej jeśli masz wiele sensorów
 	//Uptime      string  `json:"uptime"`
 	//Timestamp   string  `json:"timestamp"`
@@ -36,17 +41,13 @@ func MonitorCpu() (*DataStat, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	roundvalue := math.Round(usage[0]*100) / 100
-
 	data := &DataStat{
-		CPU: roundvalue,
+		CPU: usage[0],
 	}
 
 	if data.CPU > 80.0 {
 		fmt.Println("--Too high CPU!--") // dodac to do webhooka
 	}
-
 	return data, nil
 }
 
@@ -58,10 +59,10 @@ func MonitorMem() (*DataStat, error) {
 		return nil, err
 	}
 
-	used := float64(v.Used)           // w sumie to tez bedzie do wywalenie bo do prometheusa trzeba dddawac w bajtach
-	usePerc := float64(v.UsedPercent) // tu bedzie alert, podbnie tez dla grafany (pow.80%)
-	freeMemory := float64(v.Free)     // skonczylem tu free memorys < 1GB
-	avaMemory := float64(v.Available) // tu bedzie alert ale najwyzej to dla grafany sie doda
+	used := float64(v.Used)
+	usePerc := float64(v.UsedPercent)
+	freeMemory := float64(v.Free)
+	avaMemory := float64(v.Available)
 	totalMemory := float64(v.Total)
 
 	data := &DataStat{
@@ -71,48 +72,66 @@ func MonitorMem() (*DataStat, error) {
 		UsedPercent: usePerc,
 		Free:        freeMemory,
 	}
-
-	fmt.Println("Free memory: ", freeMemory)
-	fmt.Println("Used: ", used, "GB")
-	fmt.Println("Use percent: ", usePerc, "%")
-	fmt.Println("Available memory:", avaMemory, "GB")
-	fmt.Printf("Total Memory: %.2f GB\n", data.Memory) // oproc total memory, mozna dodac cos jeszcze
-	if data.Memory > 80.0 {                            // alert musi byc ustawiony do usedpercent !
-		fmt.Println("--Too high Memory!--") // dodac to do webhooka, trzeba napisac dodatkowa funkcje do webhookow
-	}
-
 	return data, nil
 }
 
 // Load Average obciazenie systemu
-func LoadAverage() error {
+func LoadAverage() (*DataStat, error) {
 
 	lavg, err := load.Avg()
 	if err != nil {
-		return fmt.Errorf("eror with loadaverage %w", err)
+		return nil, err
 	}
 
+	data := &DataStat{
+		Load1:  lavg.Load1,
+		Load5:  lavg.Load5,
+		Load15: lavg.Load15,
+	}
 	fmt.Printf("Load Average: 1m: %.2f, \nLoad Average 5m: %.2f \nLoad Average 15m: %.2f", lavg.Load1, lavg.Load5, lavg.Load15)
-
-	return nil
+	return data, nil
 }
 
-// temperatura CPU
+// CPU temperature
+func TempCpu() (*DataStat, error) {
 
-func TempCpu() error { // funckcja nie dziala ?
+	var cputemp float64
 
 	temp, err := sensors.SensorsTemperatures()
 	if err != nil {
-		return fmt.Errorf("error with temperature sensors %w", err)
+		return nil, err
 	}
 
 	for _, v := range temp {
 		fmt.Printf("CPU temperature: %v, \nTitel of sensor: %v ", v.Temperature, v.SensorKey)
 	}
 
-	return nil
+	//cputemp = v.Temperature
+
+	data := &DataStat{
+		CpuTemp: cputemp,
+	}
+	return data, nil
 }
 
 // Czas aktywnosci systemu
-// dodanie funkcji ktora przesle dane poprzez http post do discorda na webhook
+func SystemUpTime() (*DataStat, error) {
+
+	uptime, err := host.Uptime()
+	if err != nil {
+		return nil, err
+	}
+	days := int(uptime) / 86400
+	hours := (int(uptime) % 86400) / 3600
+	minutes := (int(uptime) % 3600) / 60
+
+	dataCpuTemp := &DataStat{
+		Days:    days, // tu skonczylem, jakis blad ?
+		Hours:   hours,
+		Minutes: minutes,
+	}
+	return dataCpuTemp, nil
+}
+
+// dodanie funkcji ktora przesle dane poprzez http post do discorda na webhook // to jako server.go bedzie
 // rozkminic to tak aby pomimo lokalnego dzialania dzialala bezpiecznie
