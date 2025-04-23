@@ -11,12 +11,9 @@ import (
 	"github.com/shirou/gopsutil/v4/sensors"
 )
 
-// !! wszystkie fmt.Println do wywalnie na koncu
-
-// dodac jeszcze inne ciekawe funkcji ktore moga byc atrakcyjne w typ wypadku
 type DataStat struct { // dodanie tego zeby wyprowadzilo metryki z dockera prometheusa i dodalo do grafany
 	CPU         float64 `json:"cpu"`
-	Memory      float64 `json:"memory"` //tutaj mozna zostawic to jako unit64
+	TotalMemory float64 `json:"memory"` //tutaj mozna zostawic to jako unit64
 	Available   float64 `json:"available"`
 	Used        float64 `json:"used"`
 	Free        float64 `json:"free"`
@@ -28,10 +25,7 @@ type DataStat struct { // dodanie tego zeby wyprowadzilo metryki z dockera prome
 	Days        int     `json:"days"`
 	Hours       int     `json:"hours"`
 	Minutes     int     `json:"minutes"`
-
 	//Temperature float64 `json:"temperature"` // możesz dodać więcej jeśli masz wiele sensorów
-	//Uptime      string  `json:"uptime"`
-	//Timestamp   string  `json:"timestamp"`
 }
 
 // CPU
@@ -68,14 +62,14 @@ func MonitorMem() (*DataStat, error) {
 	data := &DataStat{
 		Available:   avaMemory,
 		Used:        used,
-		Memory:      totalMemory,
+		TotalMemory: totalMemory,
 		UsedPercent: usePerc,
 		Free:        freeMemory,
 	}
 	return data, nil
 }
 
-// Load Average obciazenie systemu
+// Load Average
 func LoadAverage() (*DataStat, error) {
 
 	lavg, err := load.Avg()
@@ -114,7 +108,7 @@ func TempCpu() (*DataStat, error) {
 	return data, nil
 }
 
-// Czas aktywnosci systemu
+// System activity time
 func SystemUpTime() (*DataStat, error) {
 
 	uptime, err := host.Uptime()
@@ -126,12 +120,9 @@ func SystemUpTime() (*DataStat, error) {
 	minutes := (int(uptime) % 3600) / 60
 
 	dataCpuTemp := &DataStat{
-		Days:    days, // tu skonczylem, jakis blad ?
+		Days:    days,
 		Hours:   hours,
 		Minutes: minutes,
 	}
 	return dataCpuTemp, nil
 }
-
-// dodanie funkcji ktora przesle dane poprzez http post do discorda na webhook // to jako server.go bedzie
-// rozkminic to tak aby pomimo lokalnego dzialania dzialala bezpiecznie

@@ -13,13 +13,18 @@ func main() {
 	}
 	fmt.Println("Total CPU:", data.CPU, "%")
 
-	monitor.MonitorMem()
-	monitor.LoadAverage()
-	monitor.TempCpu()
-
-	dataCpu, err := monitor.SystemUpTime()
+	dataMem, err := monitor.MonitorMem()
 	if err != nil {
 		fmt.Println("Error", err)
 	}
-	fmt.Println("\nSystem time:", dataCpu.Days, dataCpu.Hours, dataCpu.Minutes)
+	fmt.Println("\n--Memory--", "\nAvailable Memory:", dataMem.Available, "\nUsed Memory:", data.Used, "\nTotal Memory:", dataMem.TotalMemory, "\nUsedPercent Memory:", dataMem.UsedPercent, "\nFree Memory:", dataMem.Free)
+
+	monitor.LoadAverage()
+	monitor.TempCpu()
+
+	dataCpuTemp, err := monitor.SystemUpTime()
+	if err != nil {
+		fmt.Println("Error", err)
+	}
+	fmt.Println("\nSystem time:", dataCpuTemp.Days, "days", dataCpuTemp.Hours, "hours", dataCpuTemp.Minutes, "minutes")
 }
