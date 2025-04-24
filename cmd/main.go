@@ -2,34 +2,31 @@ package main
 
 import (
 	"cpu/internal/monitor"
-	"fmt"
+	"log"
 )
 
 func main() {
-
-	data, err := monitor.MonitorCpu()
+	data, err := monitor.MonitorCpu() // pomyslec o go routines
 	if err != nil {
-		fmt.Println("Error", err)
+		log.Printf("MonitorCpu error: %v", err)
 	}
-	fmt.Println("Total CPU:", data.CPU, "%")
+	log.Println("Total CPU:", data.CPU, "%")
 
 	dataMem, err := monitor.MonitorMem()
 	if err != nil {
-		fmt.Println("Error", err) // pozmieniac wszedzie tu na logi, ostatecznie do wywalenie wszystkie fmt.Prity z totalmemory itp
+		log.Printf("Monitor memory error: %v", err)
 	}
-	fmt.Println("Available Memory:", dataMem.Available, "\nUsed Memory:", data.Used, "\nTotal Memory:", dataMem.TotalMemory, "\nUsedPercent Memory:", dataMem.UsedPercent, "\nFree Memory:", dataMem.Free)
+	log.Println("Available Memory:", dataMem.Available, "\nUsed Memory:", data.Used, "\nTotal Memory:", dataMem.TotalMemory, "\nUsedPercent Memory:", dataMem.UsedPercent, "\nFree Memory:", dataMem.Free)
 
 	dataLa, err := monitor.LoadAverage()
 	if err != nil {
-		fmt.Print("Error", err)
+		log.Printf("Load Average error: %v", err)
 	}
-	fmt.Println("Load Average", dataLa.Load1, dataLa.Load5, dataLa.Load15)
-
-	monitor.TempCpu() // zmiana funkcje nie czujniki temperatury tylko cos innego
+	log.Println("Load Average", dataLa.Load1, dataLa.Load5, dataLa.Load15)
 
 	dataCpuTemp, err := monitor.SystemUpTime()
 	if err != nil {
-		fmt.Println("Error", err)
+		log.Printf("System Uptime error %v", err)
 	}
-	fmt.Println("System time:", dataCpuTemp.Days, "days", dataCpuTemp.Hours, "hours", dataCpuTemp.Minutes, "minutes")
+	log.Println("System time:", dataCpuTemp.Days, "days", dataCpuTemp.Hours, "hours", dataCpuTemp.Minutes, "minutes")
 }
