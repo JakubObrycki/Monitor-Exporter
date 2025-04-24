@@ -1,7 +1,6 @@
 package monitor
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/shirou/gopsutil/host"
@@ -10,9 +9,9 @@ import (
 	"github.com/shirou/gopsutil/v3/cpu"
 )
 
-type DataStat struct { // dodanie tego zeby wyprowadzilo metryki z dockera prometheusa i dodalo do grafany
+type DataStat struct {
 	CPU         float64 `json:"cpu"`
-	TotalMemory float64 `json:"memory"` //tutaj mozna zostawic to jako unit64
+	TotalMemory float64 `json:"memory"`
 	Available   float64 `json:"available"`
 	Used        float64 `json:"used"`
 	Free        float64 `json:"free"`
@@ -27,7 +26,6 @@ type DataStat struct { // dodanie tego zeby wyprowadzilo metryki z dockera prome
 
 // CPU
 func MonitorCpu() (*DataStat, error) {
-
 	usage, err := cpu.Percent(time.Second, false)
 	if err != nil {
 		return nil, err
@@ -36,15 +34,14 @@ func MonitorCpu() (*DataStat, error) {
 		CPU: usage[0],
 	}
 
-	if data.CPU > 80.0 {
-		fmt.Println("--Too high CPU!--") // dodac to do webhooka
-	}
+	//if data.CPU > 80.0 {
+	//	fmt.Println("--Too high CPU!--") // dodac to do webhooka
+	//}
 	return data, nil
 }
 
 // Memory
 func MonitorMem() (*DataStat, error) {
-
 	v, err := mem.VirtualMemory()
 	if err != nil {
 		return nil, err
@@ -68,7 +65,6 @@ func MonitorMem() (*DataStat, error) {
 
 // Load Average
 func LoadAverage() (*DataStat, error) {
-
 	lavg, err := load.Avg()
 	if err != nil {
 		return nil, err
@@ -84,7 +80,6 @@ func LoadAverage() (*DataStat, error) {
 
 // System activity time
 func SystemUpTime() (*DataStat, error) {
-
 	uptime, err := host.Uptime()
 	if err != nil {
 		return nil, err
