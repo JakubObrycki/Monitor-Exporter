@@ -15,16 +15,21 @@ func main() {
 
 	dataMem, err := monitor.MonitorMem()
 	if err != nil {
-		fmt.Println("Error", err)
+		fmt.Println("Error", err) // pozmieniac wszedzie tu na logi, ostatecznie do wywalenie wszystkie fmt.Prity z totalmemory itp
 	}
-	fmt.Println("\n--Memory--", "\nAvailable Memory:", dataMem.Available, "\nUsed Memory:", data.Used, "\nTotal Memory:", dataMem.TotalMemory, "\nUsedPercent Memory:", dataMem.UsedPercent, "\nFree Memory:", dataMem.Free)
+	fmt.Println("Available Memory:", dataMem.Available, "\nUsed Memory:", data.Used, "\nTotal Memory:", dataMem.TotalMemory, "\nUsedPercent Memory:", dataMem.UsedPercent, "\nFree Memory:", dataMem.Free)
 
-	monitor.LoadAverage()
-	monitor.TempCpu()
+	dataLa, err := monitor.LoadAverage()
+	if err != nil {
+		fmt.Print("Error", err)
+	}
+	fmt.Println("Load Average", dataLa.Load1, dataLa.Load5, dataLa.Load15)
+
+	monitor.TempCpu() // zmiana funkcje nie czujniki temperatury tylko cos innego
 
 	dataCpuTemp, err := monitor.SystemUpTime()
 	if err != nil {
 		fmt.Println("Error", err)
 	}
-	fmt.Println("\nSystem time:", dataCpuTemp.Days, "days", dataCpuTemp.Hours, "hours", dataCpuTemp.Minutes, "minutes")
+	fmt.Println("System time:", dataCpuTemp.Days, "days", dataCpuTemp.Hours, "hours", dataCpuTemp.Minutes, "minutes")
 }

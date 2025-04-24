@@ -8,7 +8,6 @@ import (
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/shirou/gopsutil/v4/sensors"
 )
 
 type DataStat struct { // dodanie tego zeby wyprowadzilo metryki z dockera prometheusa i dodalo do grafany
@@ -21,11 +20,9 @@ type DataStat struct { // dodanie tego zeby wyprowadzilo metryki z dockera prome
 	Load1       float64 `json:"load1"`
 	Load5       float64 `json:"load5"`
 	Load15      float64 `json:"load15"`
-	CpuTemp     float64 `json:"cputemp"`
 	Days        int     `json:"days"`
 	Hours       int     `json:"hours"`
 	Minutes     int     `json:"minutes"`
-	//Temperature float64 `json:"temperature"` // możesz dodać więcej jeśli masz wiele sensorów
 }
 
 // CPU
@@ -82,29 +79,6 @@ func LoadAverage() (*DataStat, error) {
 		Load5:  lavg.Load5,
 		Load15: lavg.Load15,
 	}
-	fmt.Printf("Load Average: 1m: %.2f, \nLoad Average 5m: %.2f \nLoad Average 15m: %.2f", lavg.Load1, lavg.Load5, lavg.Load15)
-	return data, nil
-}
-
-// CPU temperature
-func TempCpu() (*DataStat, error) {
-
-	var cputemp float64
-
-	temp, err := sensors.SensorsTemperatures()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, v := range temp {
-		fmt.Printf("CPU temperature: %v, \nTitel of sensor: %v ", v.Temperature, v.SensorKey)
-	}
-
-	//cputemp = v.Temperature
-
-	data := &DataStat{
-		CpuTemp: cputemp,
-	}
 	return data, nil
 }
 
@@ -119,10 +93,10 @@ func SystemUpTime() (*DataStat, error) {
 	hours := (int(uptime) % 86400) / 3600
 	minutes := (int(uptime) % 3600) / 60
 
-	dataCpuTemp := &DataStat{
+	data := &DataStat{
 		Days:    days,
 		Hours:   hours,
 		Minutes: minutes,
 	}
-	return dataCpuTemp, nil
+	return data, nil
 }
