@@ -33,10 +33,6 @@ func MonitorCpu() (*DataStat, error) {
 	data := &DataStat{
 		CPU: usage[0],
 	}
-
-	//if data.CPU > 80.0 {
-	//	fmt.Println("--Too high CPU!--") // dodac to do webhooka
-	//}
 	return data, nil
 }
 
