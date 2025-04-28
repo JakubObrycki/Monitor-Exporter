@@ -74,7 +74,7 @@ func init() {
 }
 
 // funckcja cyklicznie analizuje dane z metryk
-func recordmetrics() {
+func RecordMetrics() {
 	cpuStat, err := MonitorCpu()
 	if err == nil {
 		CpuGauge.Set(cpuStat.CPU)
