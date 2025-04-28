@@ -2,10 +2,8 @@ package main
 
 import (
 	"cpu/internal/monitor"
-	"net/http"
+	"cpu/internal/server"
 	"time"
-
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -15,6 +13,5 @@ func main() {
 			time.Sleep(5 * time.Second)
 		}
 	}()
-	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":2112", nil)
+	server.HttpListener()
 }
