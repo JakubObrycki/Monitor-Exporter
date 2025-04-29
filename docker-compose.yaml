@@ -1,3 +1,54 @@
-# go program
-# prometheus
-# grafana
+# go container
+version: '3.8'
+
+services:
+  appexporter:
+    image: ${IMAGE_GO_NAME}
+    build:
+      context: .
+    container_name: ${CONTAINER_GO_NAME}
+    ports:
+      - "${PORT_GO}:2112"
+    restart: always
+    networks:
+      - system_exporter_network
+  
+  # Prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: ${PROM_CONT_NAME}
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    volumes:
+      - ${PROMETHEUS_DATA}:/prometheus/data  
+      - ${PROMETHEUS_CONFIG}:/etc/prometheus 
+    environment:
+      - PROMETHEUS_CONFIG_FILE=/etc/prometheus/prometheus.yml 
+    restart: unless-stopped
+    networks:
+      - system_exporter_network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: ${GRAF_CONT_NAME}
+    user: '0' 
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - ${GRAFANA_DATA}:/var/lib/grafana
+      - ${GRAFANA_PROVISIONING_PATH}:/etc/grafana/provisioning/datasources  
+    environment:
+      - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
+      - GF_PATHS_DATA=/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  system_exporter_network:
+   driver: bridge
