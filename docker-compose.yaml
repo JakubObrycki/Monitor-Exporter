@@ -1,15 +1,15 @@
-# go container
+
 version: '3.8'
 
 services:
-  appexporter:
+  system_exporter:
     image: ${IMAGE_GO_NAME}
     build:
       context: .
     container_name: ${CONTAINER_GO_NAME}
     ports:
       - "${PORT_GO}:2112"
-    restart: always
+    restart: unless-stopped
     networks:
       - system_exporter_network
   
@@ -37,17 +37,12 @@ services:
       - "${GRAFANA_PORT}:3000"
     volumes:
       - ${GRAFANA_DATA}:/var/lib/grafana
-      - ${GRAFANA_PROVISIONING_PATH}:/etc/grafana/provisioning/datasources  
     environment:
       - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
       - GF_PATHS_DATA=/var/lib/grafana
     restart: unless-stopped
     networks:
-      - monitoring
-
-volumes:
-  postgres_data:
-    driver: local
+      - system_exporter_network
 
 networks:
   system_exporter_network:
