@@ -16,3 +16,6 @@ Monitoring project written in Go:
 - Grafana - visualization and alerting
 - Docker + Docker Compose - running the entire system
 - SMTP (Gmail) - sending alerts
+
+---
+Once the 80% threshold is exceeded, an alert is triggered
