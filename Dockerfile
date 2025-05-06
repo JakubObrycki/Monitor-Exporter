@@ -4,6 +4,6 @@ WORKDIR /exporterapp
 COPY go.mod go.sum ./
 RUN go mod tidy
 COPY . . 
-RUN go build -o main .
+RUN go build -o main ./cmd
 EXPOSE 2112
 ENTRYPOINT ["./main"] 
