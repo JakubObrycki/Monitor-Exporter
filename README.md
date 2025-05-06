@@ -27,5 +27,5 @@ Example of an alert email from grafana:
 
 ---
 Samples of dashboards:
-![dasc](https://github.com/user-attachments/assets/020dcd92-ab08-42d2-ab9f-a2f7cfee7cb9)
+![image](https://github.com/user-attachments/assets/625dedf0-8c39-4d59-adf6-eefd2e7e040e)
 
