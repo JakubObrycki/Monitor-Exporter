@@ -22,5 +22,6 @@ Monitoring project written in Go:
 Once the 80% threshold is exceeded, an alert is triggered
 
 Example of an alert email from grafana:
-![image](https://github.com/user-attachments/assets/099f7ecb-11d0-44d2-8476-c3c126107ae6)
+
+![image](https://github.com/user-attachments/assets/116d45e9-61ae-4e7b-a3c3-e3bc67fbd750)
 
