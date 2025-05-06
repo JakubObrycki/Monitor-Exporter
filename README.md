@@ -23,5 +23,5 @@ Once the 80% threshold is exceeded, an alert is triggered
 
 Example of an alert email from grafana:
 
-![image](https://github.com/user-attachments/assets/116d45e9-61ae-4e7b-a3c3-e3bc67fbd750)
+![image](https://github.com/user-attachments/assets/4f03b5db-947a-44cf-9f93-fe8fe0c75da6)
 
