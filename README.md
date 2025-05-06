@@ -8,3 +8,11 @@ Monitoring project written in Go:
 - visualizes data in Grafana
 - runs everything in docker containers
 - sends e-mail alerts (SMTP) when thresholds are exceeded
+
+---
+## Technology
+- Go (Golang) - own application exporting metrics
+- Prometheus - data collection
+- Grafana - visualization and alerting
+- Docker + Docker Compose - running the entire system
+- SMTP (Gmail) - sending alerts
