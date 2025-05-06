@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	CpuGauge = prometheus.NewGauge(prometheus.GaugeOpts{ // CpuGauge ma dostawac informacje z funkcja, dlatego funkcje nalezy zmienic lekko tak jak GPT zaproponwoal ale moim rozwiazaniem jest struct czyli niech pobiera z struct
+	CpuGauge = prometheus.NewGauge(prometheus.GaugeOpts{ 
 		Name: "monitor_cpu_percent",
 		Help: "Monitor of CPU in percents",
 	})
@@ -55,7 +55,6 @@ var (
 	})
 )
 
-// rejestracja metryk w prometheusie, rejesttruje pojemniki "gauge "z metrykiami dla poszczegolnych funkcji
 func init() {
 	prometheus.MustRegister(
 		CpuGauge,
@@ -73,7 +72,6 @@ func init() {
 	)
 }
 
-// funckcja cyklicznie analizuje dane z metryk
 func RecordMetrics() {
 	cpuStat, err := MonitorCpu()
 	if err == nil {
