@@ -18,4 +18,8 @@ Monitoring project written in Go:
 - SMTP (Gmail) - sending alerts
 
 ---
+## Alert
 Once the 80% threshold is exceeded, an alert is triggered
+Example of an alert email from grafana:
+
+
