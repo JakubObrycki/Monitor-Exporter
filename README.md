@@ -1,4 +1,4 @@
-![dasc](https://github.com/user-attachments/assets/c8a958e5-acca-4867-9723-9c14a60e2d06)Monitor Exporter 
+Monitor Exporter 
  -------------------------------
 Monitoring system with Prometheus, Grafana and Alerts (Go + Docker)
 
